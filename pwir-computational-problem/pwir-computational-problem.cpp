@@ -28,6 +28,7 @@ int main()
     int max = 0;
     int whetherDisplay = 0;
     int delay = 0;
+    int sortOption = 0;
     bool isIntervalGood = false;
     bool displayStatment = false;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -126,6 +127,35 @@ int main()
         }
     } while (displayStatment);
 
+    SetConsoleTextAttribute(hConsole, 14);
+    cout << "\n -> Opcje sortowania:";
+    cout << "\n --> [1] Sortowanie b¹belkowe";
+    cout << "\n --> [2] Sortowanie b¹belkowe zoptymalizowane\n";
+    do {
+        SetConsoleTextAttribute(hConsole, 14);
+        cout << "\n --> Wybierz spoœród dostêpnych opcji: ";
+        SetConsoleTextAttribute(hConsole, 15);
+        cin >> sortOption;
+        if (!sortOption)
+        {
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "    ! Wartoœæ musi byæ liczb¹\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+        else if (!(sortOption == 1 || sortOption == 2))
+        {
+            sortOption = 0;
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "    ! Wartoœæ musi byæ równa jednej z dostêpnych opcji\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+    } while (!sortOption && !(sortOption == 1 || sortOption == 2));
+    
+
     auto matrix = new int[matrixSize][MAX_TAB_SIZE];
     GenerateRandomMatrix(matrix, matrixSize, min, max);
 
@@ -140,42 +170,45 @@ int main()
     }
 
     auto copyMatrix = new int[matrixSize][MAX_TAB_SIZE];
-    CopyMatrix(matrix, copyMatrix, matrixSize);
 
-    cout << "\n";
-    SetConsoleTextAttribute(hConsole, 11);
-    for (int i = 0; i < 70; i++) cout << '*';
-    SetConsoleTextAttribute(hConsole, 3);
-    cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe\n\n";
-    SetConsoleTextAttribute(hConsole, 15);
-    
-    auto begin = std::chrono::high_resolution_clock::now();
-    BubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-    if (whetherDisplay) {
-        DisplayMatrix(copyMatrix, matrixSize);
+    if (sortOption == 1)
+    {
+        CopyMatrix(matrix, copyMatrix, matrixSize);
+        cout << "\n";
+        SetConsoleTextAttribute(hConsole, 11);
+        for (int i = 0; i < 70; i++) cout << '*';
+        SetConsoleTextAttribute(hConsole, 3);
+        cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe\n\n";
+        SetConsoleTextAttribute(hConsole, 15);
+
+        auto begin = std::chrono::high_resolution_clock::now();
+        BubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        if (whetherDisplay) {
+            DisplayMatrix(copyMatrix, matrixSize);
+        }
+        cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
+        cout << "\n";
     }
-    cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
-    cout << "\n";
-
-    CopyMatrix(matrix, copyMatrix, matrixSize);
-
-    cout << "\n";
-    SetConsoleTextAttribute(hConsole, 11);
-    for (int i = 0; i < 70; i++) cout << '*';
-    SetConsoleTextAttribute(hConsole, 3);
-    cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe zoptymalizowane\n\n";
-    SetConsoleTextAttribute(hConsole, 15);
-    begin = std::chrono::high_resolution_clock::now();
-    OptimizedBubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
-    end = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-    if (whetherDisplay) {
-        DisplayMatrix(copyMatrix, matrixSize);
+    else if (sortOption == 2)
+    {
+        CopyMatrix(matrix, copyMatrix, matrixSize);
+        cout << "\n";
+        SetConsoleTextAttribute(hConsole, 11);
+        for (int i = 0; i < 70; i++) cout << '*';
+        SetConsoleTextAttribute(hConsole, 3);
+        cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe zoptymalizowane\n\n";
+        SetConsoleTextAttribute(hConsole, 15);
+        auto begin = std::chrono::high_resolution_clock::now();
+        OptimizedBubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        if (whetherDisplay) {
+            DisplayMatrix(copyMatrix, matrixSize);
+        }
+        cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
     }
-    cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
-    
 
     delete[] matrix;
 }
