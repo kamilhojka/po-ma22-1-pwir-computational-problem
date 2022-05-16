@@ -17,6 +17,7 @@ void DisplayMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize);
 void CopyMatrix(int matrix[][MAX_TAB_SIZE], int copyMatrix[][MAX_TAB_SIZE], int matrixSize);
 void BubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
 void OptimizedBubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
+void InsertionSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
 void SetMatrixSize(HANDLE hConsole, int& matrixSize);
 void SetMatrixInterval(HANDLE hConsole, int& min, int& max);
 void SetDelay(HANDLE hConsole, int& delay);
@@ -65,7 +66,7 @@ int main()
         SetConsoleTextAttribute(hConsole, 11);
         for (int i = 0; i < 70; i++) cout << '*';
         SetConsoleTextAttribute(hConsole, 3);
-        cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe\n\n";
+        cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe\n";
         SetConsoleTextAttribute(hConsole, 15);
 
         auto begin = std::chrono::high_resolution_clock::now();
@@ -73,10 +74,10 @@ int main()
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         if (displayOption) {
+            cout << "\n";
             DisplayMatrix(copyMatrix, matrixSize);
         }
-        cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
-        cout << "\n";
+        cout << "\nZmierzony czas: " << elapsed << " ms\n";
     }
     else if (sortOption == 2)
     {
@@ -85,16 +86,36 @@ int main()
         SetConsoleTextAttribute(hConsole, 11);
         for (int i = 0; i < 70; i++) cout << '*';
         SetConsoleTextAttribute(hConsole, 3);
-        cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe zoptymalizowane\n\n";
+        cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe zoptymalizowane\n";
         SetConsoleTextAttribute(hConsole, 15);
         auto begin = std::chrono::high_resolution_clock::now();
         OptimizedBubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         if (displayOption) {
+            cout << "\n";
+            DisplayMatrix(copyMatrix, matrixSize);
+        }        
+        cout << "\nZmierzony czas: " << elapsed << " ms\n";
+    }
+    else if (sortOption == 3)
+    {
+        CopyMatrix(matrix, copyMatrix, matrixSize);
+        cout << "\n";
+        SetConsoleTextAttribute(hConsole, 11);
+        for (int i = 0; i < 70; i++) cout << '*';
+        SetConsoleTextAttribute(hConsole, 3);
+        cout << "\n ---> Sekwencyjne sortowanie macierzy - Sortowanie przez wstawianie\n";
+        SetConsoleTextAttribute(hConsole, 15);
+        auto begin = std::chrono::high_resolution_clock::now();
+        InsertionSortRowsMatrix(copyMatrix, matrixSize, delay);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        if (displayOption) {
+            cout << "\n";
             DisplayMatrix(copyMatrix, matrixSize);
         }
-        cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
+        cout << "\nZmierzony czas: " << elapsed << " ms\n";
     }
 
     delete[] matrix;
@@ -178,6 +199,22 @@ void OptimizedBubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, i
     }
 }
 
+
+void InsertionSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay)
+{
+    for (int k = 0; k < matrixSize; k++) {
+        for (int i = 1; i < matrixSize; i++) {
+            int temp = matrix[k][i];
+            int j = i - 1;
+            for (j; j >= 0 && matrix[k][j] > temp; j--) {
+                this_thread::sleep_for(std::chrono::milliseconds(delay));
+                matrix[k][j + 1] = matrix[k][j];
+            }
+            matrix[k][j + 1] = temp;
+        }
+    }
+}
+
 void SetMatrixSize(HANDLE hConsole, int& matrixSize)
 {
     do {
@@ -248,41 +285,44 @@ void SetMatrixInterval(HANDLE hConsole, int& min, int& max)
 
 void SetDelay(HANDLE hConsole, int& delay)
 {
+    bool isSetProperly = false;
     do {
         SetConsoleTextAttribute(hConsole, 14);
         cout << "\n -> Podaj opóŸnienie? [ms]: ";
         SetConsoleTextAttribute(hConsole, 15);
         cin >> delay;
-        if (!delay) {
-            delay = 0;
+        if (!cin.good()) {
+            isSetProperly = false;
             SetConsoleTextAttribute(hConsole, 4);
             cout << "    ! Wartoœæ opóŸnienia musi byæ liczb¹\n";
             SetConsoleTextAttribute(hConsole, 15);
             cin.clear();
             cin.ignore();
         }
-    } while (!delay);
+        else isSetProperly = true;
+    } while (!isSetProperly);
 
     if (delay < 0) delay = 0;
 }
 
 void SetDisplayOption(HANDLE hConsole, int& displayOption)
 {
-    bool displayStatment = false;
+    bool isSetProperly = false;
     do {
         SetConsoleTextAttribute(hConsole, 14);
         cout << "\n -> Wyœwietliæ macierze? [1/0]: ";
         SetConsoleTextAttribute(hConsole, 15);
         cin >> displayOption;
-        displayStatment = !(displayOption == 0 || displayOption == 1) || !displayOption;
-        if (displayStatment) {
+        if (!cin.good()) {
+            isSetProperly = false;
             SetConsoleTextAttribute(hConsole, 4);
             cout << "    ! Wartoœæ musi byæ liczb¹ 0 lub 1\n";
             SetConsoleTextAttribute(hConsole, 15);
             cin.clear();
             cin.ignore();
         }
-    } while (displayStatment);
+        else if (displayOption == 0 || displayOption == 1) isSetProperly = true;
+    } while (!isSetProperly);
 }
 
 void SetSortOption(HANDLE hConsole, int& sortOption)
@@ -290,7 +330,8 @@ void SetSortOption(HANDLE hConsole, int& sortOption)
     SetConsoleTextAttribute(hConsole, 14);
     cout << "\n -> Opcje sortowania:";
     cout << "\n --> [1] Sortowanie b¹belkowe";
-    cout << "\n --> [2] Sortowanie b¹belkowe zoptymalizowane\n";
+    cout << "\n --> [2] Sortowanie b¹belkowe zoptymalizowane";
+    cout << "\n --> [3] Sortowanie przez wstawianie\n";
     do {
         SetConsoleTextAttribute(hConsole, 14);
         cout << "\n --> Wybierz spoœród dostêpnych opcji: ";
@@ -304,7 +345,7 @@ void SetSortOption(HANDLE hConsole, int& sortOption)
             cin.clear();
             cin.ignore();
         }
-        else if (!(sortOption == 1 || sortOption == 2))
+        else if (!(sortOption == 1 || sortOption == 2 || sortOption == 3))
         {
             sortOption = 0;
             SetConsoleTextAttribute(hConsole, 4);
@@ -313,5 +354,5 @@ void SetSortOption(HANDLE hConsole, int& sortOption)
             cin.clear();
             cin.ignore();
         }
-    } while (!sortOption && !(sortOption == 1 || sortOption == 2));
+    } while (!sortOption && !(sortOption == 1 || sortOption == 2 || sortOption == 3));
 }
