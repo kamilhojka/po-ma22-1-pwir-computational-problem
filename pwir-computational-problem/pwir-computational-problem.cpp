@@ -7,6 +7,7 @@
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <omp.h>
 
 using namespace std;
 
@@ -242,22 +243,44 @@ void RunBubbleSort(HANDLE hConsole, int matrix[][MAX_TAB_SIZE], int copyMatrix[]
     }
     cout << "\nZmierzony czas: " << elapsed << " ms\n";
 
+    // Parallel 
     CopyMatrix(matrix, copyMatrix, matrixSize);
     cout << "\n";
     SetConsoleTextAttribute(hConsole, 11);
     for (int i = 0; i < 70; i++) cout << '*';
     SetConsoleTextAttribute(hConsole, 3);
-    cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe\n";
+    cout << "\n ---> Równoleg³e sortowanie macierzy - sortowanie b¹belkowe\n";
     SetConsoleTextAttribute(hConsole, 15);
     begin = std::chrono::high_resolution_clock::now();
     vector<thread> threads(matrixSize);
-    for (size_t i = 0; i < threads.size(); i++)
+    for (int i = 0; i < threads.size(); i++)
     {
         threads[i] = thread(BubbleSortRowsMatrixParallel, copyMatrix, matrixSize, i, delay);
     }
     for (auto& thread : threads)
     {
         thread.join();
+    }
+    end = std::chrono::high_resolution_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    if (displayOption) {
+        cout << "\n";
+        DisplayMatrix(copyMatrix, matrixSize);
+    }
+    cout << "\nZmierzony czas: " << elapsed << " ms\n";
+
+    // Parallel - OpenMP
+    CopyMatrix(matrix, copyMatrix, matrixSize);
+    cout << "\n";
+    SetConsoleTextAttribute(hConsole, 11);
+    for (int i = 0; i < 70; i++) cout << '*';
+    SetConsoleTextAttribute(hConsole, 3);
+    cout << "\n ---> Równoleg³e sortowanie macierzy OpenMP - sortowanie b¹belkowe\n";
+    SetConsoleTextAttribute(hConsole, 15);
+    begin = std::chrono::high_resolution_clock::now();
+#pragma omp parallel for
+    for (int i = 0; i < matrixSize; i++) {
+        BubbleSortRowsMatrixParallel(copyMatrix, matrixSize, i, delay);
     }
     end = std::chrono::high_resolution_clock::now();
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
@@ -287,6 +310,7 @@ void RunOptimizedBubbleSort(HANDLE hConsole, int matrix[][MAX_TAB_SIZE], int cop
     }
     cout << "\nZmierzony czas: " << elapsed << " ms\n";
 
+    // Parallel
     CopyMatrix(matrix, copyMatrix, matrixSize);
     cout << "\n";
     SetConsoleTextAttribute(hConsole, 11);
@@ -296,13 +320,34 @@ void RunOptimizedBubbleSort(HANDLE hConsole, int matrix[][MAX_TAB_SIZE], int cop
     SetConsoleTextAttribute(hConsole, 15);
     begin = std::chrono::high_resolution_clock::now();
     vector<thread> threads(matrixSize);
-    for (size_t i = 0; i < threads.size(); i++)
+    for (int i = 0; i < threads.size(); i++)
     {
         threads[i] = thread(OptimizedBubbleSortRowsMatrixParallel, copyMatrix, matrixSize, i, delay);
     }
     for (auto& thread : threads)
     {
         thread.join();
+    }
+    end = std::chrono::high_resolution_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    if (displayOption) {
+        cout << "\n";
+        DisplayMatrix(copyMatrix, matrixSize);
+    }
+    cout << "\nZmierzony czas: " << elapsed << " ms\n";
+
+    // Parallel - OpenMP
+    CopyMatrix(matrix, copyMatrix, matrixSize);
+    cout << "\n";
+    SetConsoleTextAttribute(hConsole, 11);
+    for (int i = 0; i < 70; i++) cout << '*';
+    SetConsoleTextAttribute(hConsole, 3);
+    cout << "\n ---> Równoleg³e sortowanie macierzy OpenMP - sortowanie b¹belkowe zoptymalizowane\n";
+    SetConsoleTextAttribute(hConsole, 15);
+    begin = std::chrono::high_resolution_clock::now();
+#pragma omp parallel for
+    for (int i = 0; i < matrixSize; i++) {
+        OptimizedBubbleSortRowsMatrixParallel(copyMatrix, matrixSize, i, delay);
     }
     end = std::chrono::high_resolution_clock::now();
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
@@ -332,22 +377,44 @@ void RunInsertionSort(HANDLE hConsole, int matrix[][MAX_TAB_SIZE], int copyMatri
     }
     cout << "\nZmierzony czas: " << elapsed << " ms\n";
 
+    // Parallel 
     CopyMatrix(matrix, copyMatrix, matrixSize);
     cout << "\n";
     SetConsoleTextAttribute(hConsole, 11);
     for (int i = 0; i < 70; i++) cout << '*';
     SetConsoleTextAttribute(hConsole, 3);
-    cout << "\n ---> Sekwencyjne sortowanie macierzy - Sortowanie przez wstawianie\n";
+    cout << "\n ---> Równoleg³e sortowanie macierzy - Sortowanie przez wstawianie\n";
     SetConsoleTextAttribute(hConsole, 15);
     begin = std::chrono::high_resolution_clock::now();
     vector<thread> threads(matrixSize);
-    for (size_t i = 0; i < threads.size(); i++)
+    for (int i = 0; i < threads.size(); i++)
     {
         threads[i] = thread(InsertionSortRowsMatrixParallel, copyMatrix, matrixSize, i, delay);
     }
     for (auto& thread : threads)
     {
         thread.join();
+    }
+    end = std::chrono::high_resolution_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    if (displayOption) {
+        cout << "\n";
+        DisplayMatrix(copyMatrix, matrixSize);
+    }
+    cout << "\nZmierzony czas: " << elapsed << " ms\n";
+
+    // Parallel - OpenMP
+    CopyMatrix(matrix, copyMatrix, matrixSize);
+    cout << "\n";
+    SetConsoleTextAttribute(hConsole, 11);
+    for (int i = 0; i < 70; i++) cout << '*';
+    SetConsoleTextAttribute(hConsole, 3);
+    cout << "\n ---> Równoleg³e sortowanie macierzy OpenMP - Sortowanie przez wstawianie\n";
+    SetConsoleTextAttribute(hConsole, 15);
+    begin = std::chrono::high_resolution_clock::now();
+#pragma omp parallel for
+    for (int i = 0; i < matrixSize; i++) {
+        InsertionSortRowsMatrixParallel(copyMatrix, matrixSize, i, delay);
     }
     end = std::chrono::high_resolution_clock::now();
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
