@@ -17,6 +17,11 @@ void DisplayMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize);
 void CopyMatrix(int matrix[][MAX_TAB_SIZE], int copyMatrix[][MAX_TAB_SIZE], int matrixSize);
 void BubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
 void OptimizedBubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
+void SetMatrixSize(HANDLE hConsole, int& matrixSize);
+void SetMatrixInterval(HANDLE hConsole, int& min, int& max);
+void SetDelay(HANDLE hConsole, int& delay);
+void SetDisplayOption(HANDLE hConsole, int& displayOption);
+void SetSortOption(HANDLE hConsole, int& sortOption);
 
 int main()
 {
@@ -26,140 +31,22 @@ int main()
     int matrixSize = 0;
     int min = 0;
     int max = 0;
-    int whetherDisplay = 0;
     int delay = 0;
+    int displayOption = 0;
     int sortOption = 0;
-    bool isIntervalGood = false;
-    bool displayStatment = false;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
     ShowIntroInformation(hConsole);
-
-    do {
-      SetConsoleTextAttribute(hConsole, 14);
-      cout << "\n -> Jaki rozmiar ma mieæ macierz kwadratowa? ";
-      SetConsoleTextAttribute(hConsole, 12);
-      cout << "(maksymalny rozmiar to 700): ";
-      SetConsoleTextAttribute(hConsole, 15);
-      cin >> matrixSize;
-      if (!matrixSize || matrixSize <= 0 || matrixSize > MAX_TAB_SIZE) {
-        matrixSize = 0;
-        SetConsoleTextAttribute(hConsole, 4);
-        cout << "    ! Musisz wprowadziæ liczbê wiêksz¹ od 0 i mniejsz¹, b¹dŸ równ¹ 700\n";
-        SetConsoleTextAttribute(hConsole, 15);
-        cin.clear();
-        cin.ignore();
-      }
-    } while (matrixSize == 0);
-
-    SetConsoleTextAttribute(hConsole, 14);
-    cout << "\n -> Jaki przedzia³ liczb losowych ma posiadaæ macierz?\n";
-    do {
-    SetConsoleTextAttribute(hConsole, 14);
-    cout << " --> Podaj minimum: ";
-    SetConsoleTextAttribute(hConsole, 15);
-    cin >> min;
-    if (!min) {
-        min = 0;
-        SetConsoleTextAttribute(hConsole, 4);
-        cout << "     ! Wartoœæ minimum musi byæ liczb¹\n";
-        SetConsoleTextAttribute(hConsole, 15);
-        cin.clear();
-        cin.ignore();
-    }
-    else {
-        do {
-            SetConsoleTextAttribute(hConsole, 14);
-            cout << " --> Podaj maksimum: ";
-            SetConsoleTextAttribute(hConsole, 15);
-            cin >> max;
-            if (!max) {
-                max = 0;
-                SetConsoleTextAttribute(hConsole, 4);
-                cout << "     ! Wartoœæ maksimum musi byæ liczb¹\n";
-                SetConsoleTextAttribute(hConsole, 15);
-                cin.clear();
-                cin.ignore();
-            }
-            else if (max < min) {
-                max = 0;
-                SetConsoleTextAttribute(hConsole, 4);
-                cout << "     ! Wartoœæ maksimum musi byæ wiêksze od minimum\n";
-                SetConsoleTextAttribute(hConsole, 15);
-                cin.clear();
-                cin.ignore();
-            }
-            else if (max >= min) { 
-                isIntervalGood = true; 
-            }
-        } while (!isIntervalGood);
-    }
-    } while (!isIntervalGood);
-
-    do {
-        SetConsoleTextAttribute(hConsole, 14);
-        cout << "\n -> Podaj opóŸnienie? [ms]: ";
-        SetConsoleTextAttribute(hConsole, 15);
-        cin >> delay;
-        if (!delay) {
-            delay = 0;
-            SetConsoleTextAttribute(hConsole, 4);
-            cout << "    ! Wartoœæ opóŸnienia musi byæ liczb¹\n";
-            SetConsoleTextAttribute(hConsole, 15);
-            cin.clear();
-            cin.ignore();
-        }
-    } while (!delay);
-
-    if (delay < 0) delay = 0;
-
-    do {
-        SetConsoleTextAttribute(hConsole, 14);
-        cout << "\n -> Wyœwietliæ macierze? [1/0]: ";
-        SetConsoleTextAttribute(hConsole, 15);
-        cin >> whetherDisplay;
-        displayStatment = !(whetherDisplay == 0 || whetherDisplay == 1) || !whetherDisplay ;
-        if (displayStatment) {
-            SetConsoleTextAttribute(hConsole, 4);
-            cout << "    ! Wartoœæ musi byæ liczb¹ 0 lub 1\n";
-            SetConsoleTextAttribute(hConsole, 15);
-            cin.clear();
-            cin.ignore();
-        }
-    } while (displayStatment);
-
-    SetConsoleTextAttribute(hConsole, 14);
-    cout << "\n -> Opcje sortowania:";
-    cout << "\n --> [1] Sortowanie b¹belkowe";
-    cout << "\n --> [2] Sortowanie b¹belkowe zoptymalizowane\n";
-    do {
-        SetConsoleTextAttribute(hConsole, 14);
-        cout << "\n --> Wybierz spoœród dostêpnych opcji: ";
-        SetConsoleTextAttribute(hConsole, 15);
-        cin >> sortOption;
-        if (!sortOption)
-        {
-            SetConsoleTextAttribute(hConsole, 4);
-            cout << "    ! Wartoœæ musi byæ liczb¹\n";
-            SetConsoleTextAttribute(hConsole, 15);
-            cin.clear();
-            cin.ignore();
-        }
-        else if (!(sortOption == 1 || sortOption == 2))
-        {
-            sortOption = 0;
-            SetConsoleTextAttribute(hConsole, 4);
-            cout << "    ! Wartoœæ musi byæ równa jednej z dostêpnych opcji\n";
-            SetConsoleTextAttribute(hConsole, 15);
-            cin.clear();
-            cin.ignore();
-        }
-    } while (!sortOption && !(sortOption == 1 || sortOption == 2));
-    
+    SetMatrixSize(hConsole, matrixSize);
+    SetMatrixInterval(hConsole, min, max);
+    SetDelay(hConsole, delay);
+    SetDisplayOption(hConsole, displayOption);
+    SetSortOption(hConsole, sortOption);
 
     auto matrix = new int[matrixSize][MAX_TAB_SIZE];
     GenerateRandomMatrix(matrix, matrixSize, min, max);
 
-    if (whetherDisplay) {
+    if (displayOption) {
         cout << "\n\n";
         SetConsoleTextAttribute(hConsole, 11);
         for (int i = 0; i < 70; i++) cout << '*';
@@ -185,7 +72,7 @@ int main()
         BubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-        if (whetherDisplay) {
+        if (displayOption) {
             DisplayMatrix(copyMatrix, matrixSize);
         }
         cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
@@ -204,7 +91,7 @@ int main()
         OptimizedBubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-        if (whetherDisplay) {
+        if (displayOption) {
             DisplayMatrix(copyMatrix, matrixSize);
         }
         cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
@@ -289,4 +176,142 @@ void OptimizedBubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, i
                 break;
         }
     }
+}
+
+void SetMatrixSize(HANDLE hConsole, int& matrixSize)
+{
+    do {
+        SetConsoleTextAttribute(hConsole, 14);
+        cout << "\n -> Jaki rozmiar ma mieæ macierz kwadratowa? ";
+        SetConsoleTextAttribute(hConsole, 12);
+        cout << "(maksymalny rozmiar to 700): ";
+        SetConsoleTextAttribute(hConsole, 15);
+        cin >> matrixSize;
+        if (!matrixSize || matrixSize <= 0 || matrixSize > MAX_TAB_SIZE) {
+            matrixSize = 0;
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "    ! Musisz wprowadziæ liczbê wiêksz¹ od 0 i mniejsz¹, b¹dŸ równ¹ 700\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+    } while (matrixSize == 0);
+}
+
+void SetMatrixInterval(HANDLE hConsole, int& min, int& max)
+{
+    bool isIntervalGood = false;
+    SetConsoleTextAttribute(hConsole, 14);
+    cout << "\n -> Jaki przedzia³ liczb losowych ma posiadaæ macierz?\n";
+    do {
+        SetConsoleTextAttribute(hConsole, 14);
+        cout << " --> Podaj minimum: ";
+        SetConsoleTextAttribute(hConsole, 15);
+        cin >> min;
+        if (!min) {
+            min = 0;
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "     ! Wartoœæ minimum musi byæ liczb¹\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+        else {
+            do {
+                SetConsoleTextAttribute(hConsole, 14);
+                cout << " --> Podaj maksimum: ";
+                SetConsoleTextAttribute(hConsole, 15);
+                cin >> max;
+                if (!max) {
+                    max = 0;
+                    SetConsoleTextAttribute(hConsole, 4);
+                    cout << "     ! Wartoœæ maksimum musi byæ liczb¹\n";
+                    SetConsoleTextAttribute(hConsole, 15);
+                    cin.clear();
+                    cin.ignore();
+                }
+                else if (max < min) {
+                    max = 0;
+                    SetConsoleTextAttribute(hConsole, 4);
+                    cout << "     ! Wartoœæ maksimum musi byæ wiêksze od minimum\n";
+                    SetConsoleTextAttribute(hConsole, 15);
+                    cin.clear();
+                    cin.ignore();
+                }
+                else if (max >= min) {
+                    isIntervalGood = true;
+                }
+            } while (!isIntervalGood);
+        }
+    } while (!isIntervalGood);
+}
+
+void SetDelay(HANDLE hConsole, int& delay)
+{
+    do {
+        SetConsoleTextAttribute(hConsole, 14);
+        cout << "\n -> Podaj opóŸnienie? [ms]: ";
+        SetConsoleTextAttribute(hConsole, 15);
+        cin >> delay;
+        if (!delay) {
+            delay = 0;
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "    ! Wartoœæ opóŸnienia musi byæ liczb¹\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+    } while (!delay);
+
+    if (delay < 0) delay = 0;
+}
+
+void SetDisplayOption(HANDLE hConsole, int& displayOption)
+{
+    bool displayStatment = false;
+    do {
+        SetConsoleTextAttribute(hConsole, 14);
+        cout << "\n -> Wyœwietliæ macierze? [1/0]: ";
+        SetConsoleTextAttribute(hConsole, 15);
+        cin >> displayOption;
+        displayStatment = !(displayOption == 0 || displayOption == 1) || !displayOption;
+        if (displayStatment) {
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "    ! Wartoœæ musi byæ liczb¹ 0 lub 1\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+    } while (displayStatment);
+}
+
+void SetSortOption(HANDLE hConsole, int& sortOption)
+{
+    SetConsoleTextAttribute(hConsole, 14);
+    cout << "\n -> Opcje sortowania:";
+    cout << "\n --> [1] Sortowanie b¹belkowe";
+    cout << "\n --> [2] Sortowanie b¹belkowe zoptymalizowane\n";
+    do {
+        SetConsoleTextAttribute(hConsole, 14);
+        cout << "\n --> Wybierz spoœród dostêpnych opcji: ";
+        SetConsoleTextAttribute(hConsole, 15);
+        cin >> sortOption;
+        if (!sortOption)
+        {
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "    ! Wartoœæ musi byæ liczb¹\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+        else if (!(sortOption == 1 || sortOption == 2))
+        {
+            sortOption = 0;
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "    ! Wartoœæ musi byæ równa jednej z dostêpnych opcji\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+    } while (!sortOption && !(sortOption == 1 || sortOption == 2));
 }
