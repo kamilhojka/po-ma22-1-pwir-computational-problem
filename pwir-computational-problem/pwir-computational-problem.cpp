@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <chrono>
 #include <thread>
+#include <vector>
 
 using namespace std;
 
@@ -18,6 +19,9 @@ void CopyMatrix(int matrix[][MAX_TAB_SIZE], int copyMatrix[][MAX_TAB_SIZE], int 
 void BubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
 void OptimizedBubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
 void InsertionSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
+void BubbleSortRowsMatrixParallel(int matrix[][MAX_TAB_SIZE], int matrixSize, int selectedRow, int delay);
+void OptimizedBubbleSortRowsMatrixParallel(int matrix[][MAX_TAB_SIZE], int matrixSize, int selectedRow, int delay);
+void InsertionSortRowsMatrixParallel(int matrix[][MAX_TAB_SIZE], int matrixSize, int selectedRow, int delay);
 void SetMatrixSize(HANDLE hConsole, int& matrixSize);
 void SetMatrixInterval(HANDLE hConsole, int& min, int& max);
 void SetDelay(HANDLE hConsole, int& delay);
@@ -68,11 +72,35 @@ int main()
         SetConsoleTextAttribute(hConsole, 3);
         cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe\n";
         SetConsoleTextAttribute(hConsole, 15);
-
         auto begin = std::chrono::high_resolution_clock::now();
         BubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        if (displayOption) {
+            cout << "\n";
+            DisplayMatrix(copyMatrix, matrixSize);
+        }
+        cout << "\nZmierzony czas: " << elapsed << " ms\n";
+
+        CopyMatrix(matrix, copyMatrix, matrixSize);
+        cout << "\n";
+        SetConsoleTextAttribute(hConsole, 11);
+        for (int i = 0; i < 70; i++) cout << '*';
+        SetConsoleTextAttribute(hConsole, 3);
+        cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe\n";
+        SetConsoleTextAttribute(hConsole, 15);
+        begin = std::chrono::high_resolution_clock::now();
+        vector<thread> threads(matrixSize);
+        for (size_t i = 0; i < threads.size(); i++)
+        {
+            threads[i] = thread(BubbleSortRowsMatrixParallel, copyMatrix, matrixSize, i, delay);
+        }
+        for (auto& thread : threads)
+        {
+            thread.join();
+        }
+        end = std::chrono::high_resolution_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         if (displayOption) {
             cout << "\n";
             DisplayMatrix(copyMatrix, matrixSize);
@@ -97,6 +125,31 @@ int main()
             DisplayMatrix(copyMatrix, matrixSize);
         }        
         cout << "\nZmierzony czas: " << elapsed << " ms\n";
+        
+        CopyMatrix(matrix, copyMatrix, matrixSize);
+        cout << "\n";
+        SetConsoleTextAttribute(hConsole, 11);
+        for (int i = 0; i < 70; i++) cout << '*';
+        SetConsoleTextAttribute(hConsole, 3);
+        cout << "\n ---> Równoleg³e sortowanie macierzy - sortowanie b¹belkowe zoptymalizowane\n";
+        SetConsoleTextAttribute(hConsole, 15);
+        begin = std::chrono::high_resolution_clock::now();
+        vector<thread> threads(matrixSize);
+        for (size_t i = 0; i < threads.size(); i++)
+        {
+            threads[i] = thread(OptimizedBubbleSortRowsMatrixParallel, copyMatrix, matrixSize, i, delay);
+        }
+        for (auto& thread : threads)
+        {
+            thread.join();
+        }
+        end = std::chrono::high_resolution_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        if (displayOption) {
+            cout << "\n";
+            DisplayMatrix(copyMatrix, matrixSize);
+        }        
+        cout << "\nZmierzony czas: " << elapsed << " ms\n";
     }
     else if (sortOption == 3)
     {
@@ -111,6 +164,31 @@ int main()
         InsertionSortRowsMatrix(copyMatrix, matrixSize, delay);
         auto end = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        if (displayOption) {
+            cout << "\n";
+            DisplayMatrix(copyMatrix, matrixSize);
+        }
+        cout << "\nZmierzony czas: " << elapsed << " ms\n";
+
+        CopyMatrix(matrix, copyMatrix, matrixSize);
+        cout << "\n";
+        SetConsoleTextAttribute(hConsole, 11);
+        for (int i = 0; i < 70; i++) cout << '*';
+        SetConsoleTextAttribute(hConsole, 3);
+        cout << "\n ---> Sekwencyjne sortowanie macierzy - Sortowanie przez wstawianie\n";
+        SetConsoleTextAttribute(hConsole, 15);
+        begin = std::chrono::high_resolution_clock::now();
+        vector<thread> threads(matrixSize);
+        for (size_t i = 0; i < threads.size(); i++)
+        {
+            threads[i] = thread(InsertionSortRowsMatrixParallel, copyMatrix, matrixSize, i, delay);
+        }
+        for (auto& thread : threads)
+        {
+            thread.join();
+        }
+        end = std::chrono::high_resolution_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         if (displayOption) {
             cout << "\n";
             DisplayMatrix(copyMatrix, matrixSize);
@@ -212,6 +290,51 @@ void InsertionSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int del
             }
             matrix[k][j + 1] = temp;
         }
+    }
+}
+
+
+void BubbleSortRowsMatrixParallel(int matrix[][MAX_TAB_SIZE], int matrixSize, int selectedRow, int delay)
+{
+    for (int j = 0; j < matrixSize - 1; j++) {
+        for (int k = 0; k < matrixSize - j - 1; k++) {
+            if (matrix[selectedRow][k] > matrix[selectedRow][k + 1]) {
+                this_thread::sleep_for(std::chrono::milliseconds(delay));
+                swap(matrix[selectedRow][k], matrix[selectedRow][k + 1]);
+            }
+        }
+    }
+}
+
+void OptimizedBubbleSortRowsMatrixParallel(int matrix[][MAX_TAB_SIZE], int matrixSize, int selectedRow, int delay)
+{
+    for (int step = 0; step < (matrixSize - 1); ++step) {
+        int swapped = 0;
+
+        for (int i = 0; i < (matrixSize - step - 1); ++i) {
+            if (matrix[selectedRow][i] > matrix[selectedRow][i + 1]) {
+                this_thread::sleep_for(std::chrono::milliseconds(delay));
+                swap(matrix[selectedRow][i], matrix[selectedRow][i + 1]);
+                swapped = 1;
+            }
+        }
+
+        if (swapped == 0)
+            break;
+    }
+}
+
+
+void InsertionSortRowsMatrixParallel(int matrix[][MAX_TAB_SIZE], int matrixSize, int selectedRow, int delay)
+{
+    for (int i = 1; i < matrixSize; i++) {
+        int temp = matrix[selectedRow][i];
+        int j = i - 1;
+        for (j; j >= 0 && matrix[selectedRow][j] > temp; j--) {
+            this_thread::sleep_for(std::chrono::milliseconds(delay));
+            matrix[selectedRow][j + 1] = matrix[selectedRow][j];
+        }
+        matrix[selectedRow][j + 1] = temp;
     }
 }
 
