@@ -14,6 +14,7 @@ using namespace std;
 void ShowIntroInformation(HANDLE hConsole);
 void GenerateRandomMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int min, int max);
 void DisplayMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize);
+void CopyMatrix(int matrix[][MAX_TAB_SIZE], int copyMatrix[][MAX_TAB_SIZE], int matrixSize);
 void BubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
 void OptimizedBubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay);
 
@@ -32,7 +33,7 @@ int main()
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     ShowIntroInformation(hConsole);
 
-    /*do {
+    do {
       SetConsoleTextAttribute(hConsole, 14);
       cout << "\n -> Jaki rozmiar ma mieæ macierz kwadratowa? ";
       SetConsoleTextAttribute(hConsole, 12);
@@ -95,6 +96,23 @@ int main()
 
     do {
         SetConsoleTextAttribute(hConsole, 14);
+        cout << "\n -> Podaj opóŸnienie? [ms]: ";
+        SetConsoleTextAttribute(hConsole, 15);
+        cin >> delay;
+        if (!delay) {
+            delay = 0;
+            SetConsoleTextAttribute(hConsole, 4);
+            cout << "    ! Wartoœæ opóŸnienia musi byæ liczb¹\n";
+            SetConsoleTextAttribute(hConsole, 15);
+            cin.clear();
+            cin.ignore();
+        }
+    } while (!delay);
+
+    if (delay < 0) delay = 0;
+
+    do {
+        SetConsoleTextAttribute(hConsole, 14);
         cout << "\n -> Wyœwietliæ macierze? [1/0]: ";
         SetConsoleTextAttribute(hConsole, 15);
         cin >> whetherDisplay;
@@ -106,65 +124,77 @@ int main()
             cin.clear();
             cin.ignore();
         }
-    } while (displayStatment);*/
+    } while (displayStatment);
 
-    //auto matrix = new int[matrixSize][MAX_TAB_SIZE];
-    //GenerateRandomMatrix(matrix, matrixSize, min, max);
-    whetherDisplay = 1;
-    matrixSize = 10;
-    delay = 1;
-    int matrix[10][MAX_TAB_SIZE] = {{2, 4, 2, 3, 5, 1, 3, 8, 1, 8},
-        {9, 5, 1, 8, 4, 6, 9, 3, 4, 1},
-        {4, 5, 6, 1, 5, 2, 4, 4, 6, 4},
-        {4, 3, 8, 3, 1, 5, 3, 6, 6, 1},
-        {2, 8, 6, 3, 8, 4, 1, 2, 4, 3},
-        {6, 2, 1, 9, 7, 6, 9, 9, 3, 5},
-        {2, 3, 9, 6, 9, 4, 1, 9, 5, 9},
-        {3, 5, 7, 3, 1, 3, 6, 7, 2, 2},
-        {8, 9, 3, 2, 2, 9, 5, 4, 7, 4},
-        {1, 2, 6, 4, 7, 5, 5, 4, 5, 8}};
+    auto matrix = new int[matrixSize][MAX_TAB_SIZE];
+    GenerateRandomMatrix(matrix, matrixSize, min, max);
 
     if (whetherDisplay) {
-        cout << "\n";
+        cout << "\n\n";
+        SetConsoleTextAttribute(hConsole, 11);
+        for (int i = 0; i < 70; i++) cout << '*';
+        SetConsoleTextAttribute(hConsole, 3);
+        cout << "\n ---> Wygenerowana macierz\n\n";
+        SetConsoleTextAttribute(hConsole, 15);
         DisplayMatrix(matrix, matrixSize);
     }
-    cout << "\n";
-    /*auto begin = std::chrono::high_resolution_clock::now();
-    BubbleSortRowsMatrix(matrix, matrixSize, delay);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-    DisplayMatrix(matrix, matrixSize);
-    cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;*/
-    cout << "\n";
 
+    auto copyMatrix = new int[matrixSize][MAX_TAB_SIZE];
+    CopyMatrix(matrix, copyMatrix, matrixSize);
 
     cout << "\n";
+    SetConsoleTextAttribute(hConsole, 11);
+    for (int i = 0; i < 70; i++) cout << '*';
+    SetConsoleTextAttribute(hConsole, 3);
+    cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe\n\n";
+    SetConsoleTextAttribute(hConsole, 15);
+    
     auto begin = std::chrono::high_resolution_clock::now();
-    OptimizedBubbleSortRowsMatrix(matrix, matrixSize, delay);
+    BubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-    DisplayMatrix(matrix, matrixSize);
+    if (whetherDisplay) {
+        DisplayMatrix(copyMatrix, matrixSize);
+    }
     cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
     cout << "\n";
+
+    CopyMatrix(matrix, copyMatrix, matrixSize);
+
+    cout << "\n";
+    SetConsoleTextAttribute(hConsole, 11);
+    for (int i = 0; i < 70; i++) cout << '*';
+    SetConsoleTextAttribute(hConsole, 3);
+    cout << "\n ---> Sekwencyjne sortowanie macierzy - sortowanie b¹belkowe zoptymalizowane\n\n";
+    SetConsoleTextAttribute(hConsole, 15);
+    begin = std::chrono::high_resolution_clock::now();
+    OptimizedBubbleSortRowsMatrix(copyMatrix, matrixSize, delay);
+    end = std::chrono::high_resolution_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    if (whetherDisplay) {
+        DisplayMatrix(copyMatrix, matrixSize);
+    }
+    cout << endl << "Zmierzony czas: " << elapsed << " ms" << endl;
     
 
-    //delete[] matrix;
+    delete[] matrix;
 }
 
-void ShowIntroInformation(HANDLE hConsole) {
+void ShowIntroInformation(HANDLE hConsole) 
+{
     SetConsoleTextAttribute(hConsole, 11);
     for (int i = 0; i < 70; i++) cout << '*';
     SetConsoleTextAttribute(hConsole, 3);
     cout << "\n\n  PROGRAMOWANIE WSPÓ£BIE¯NE I ROZPROSZONE 21/22L\n  Autor programu: ";
     SetConsoleTextAttribute(hConsole, 15);
-    cout << "Kamil Hojka -- S97632\n\n";
+    cout << "Kamil Hojka -- 97632\n\n";
     SetConsoleTextAttribute(hConsole, 11);
     for (int i = 0; i < 70; i++) cout << '*';
     cout << "\n";
     SetConsoleTextAttribute(hConsole, 15);
 }
 
-void GenerateRandomMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int min, int max)
+void GenerateRandomMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int min, int max) 
 {
     srand(static_cast<unsigned>(time(0)));
 
@@ -175,7 +205,8 @@ void GenerateRandomMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int min, i
     }
 }
 
-void DisplayMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize) {
+void DisplayMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize) 
+{
     for (int i = 0; i < matrixSize; i++) {
         for (int j = 0; j < matrixSize; j++) {
             cout << matrix[i][j] << " ";
@@ -184,13 +215,23 @@ void DisplayMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize) {
     }
 }
 
-void BubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay)
+void CopyMatrix(int matrix[][MAX_TAB_SIZE], int copyMatrix[][MAX_TAB_SIZE], int matrixSize) 
+{
+    for (int i = 0; i < matrixSize; i++) {
+        for (int j = 0; j < matrixSize; j++) {
+            copyMatrix[i][j] = matrix[i][j];
+        }
+    }
+}
+
+void BubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, int delay) 
 {
     for (int i = 0; i < matrixSize; i++) {
         for (int j = 0; j < matrixSize - 1; j++) {
-            for (int m = 0; m < matrixSize - j - 1; m++) {
-                if (matrix[i][m] > matrix[i][m + 1]) {
-                    swap(matrix[i][m], matrix[i][m + 1]);
+            for (int k = 0; k < matrixSize - j - 1; k++) {
+                if (matrix[i][k] > matrix[i][k + 1]) {
+                    this_thread::sleep_for(std::chrono::milliseconds(delay));
+                    swap(matrix[i][k], matrix[i][k + 1]);
                 }
             }
         }
@@ -205,10 +246,9 @@ void OptimizedBubbleSortRowsMatrix(int matrix[][MAX_TAB_SIZE], int matrixSize, i
 
             for (int i = 0; i < (matrixSize - step - 1); ++i) {
                 if (matrix[m][i] > matrix[m][i + 1]) {
+                    this_thread::sleep_for(std::chrono::milliseconds(delay));
                     swap(matrix[m][i], matrix[m][i + 1]);
-
                     swapped = 1;
-                    this_thread::sleep_for(chrono::milliseconds(delay));
                 }
             }
 
